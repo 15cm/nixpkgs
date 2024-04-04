@@ -1,45 +1,18 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, pkg-config
-, git
-, qt6Packages
-, openal
-, glew
-, vulkan-headers
-, vulkan-loader
-, libpng
-, libSM
-, ffmpeg
-, libevdev
-, libusb1
-, zlib
-, curl
-, wolfssl
-, python3
-, pugixml
-, flatbuffers
-, llvm_16
-, cubeb
-, enableDiscordRpc ? false
-, faudioSupport ? true
-, faudio
-, SDL2
-, waylandSupport ? true
-, wayland
-}:
+{ lib, stdenv, fetchFromGitHub, cmake, pkg-config, git, qt6Packages, openal
+, glew, vulkan-headers, vulkan-loader, libpng, libSM, ffmpeg, libevdev, libusb1
+, zlib, curl, wolfssl, python3, pugixml, flatbuffers, llvm_16, cubeb
+, enableDiscordRpc ? false, faudioSupport ? true, faudio, SDL2
+, waylandSupport ? true, wayland }:
 
 let
   # Keep these separate so the update script can regex them
-  rpcs3GitVersion = "15726-ebf48800e";
-  rpcs3Version = "0.0.29-15726-ebf48800e";
-  rpcs3Revision = "ebf48800e6bf2569fa0a59974ab2daaeb3a92f23";
-  rpcs3Hash = "sha256-HJQ+DCZy8lwMCfq0N9StKD8bP1hCBxGMAucbQ9esy/I=";
+  rpcs3GitVersion = "16271-4ecf8ecd0";
+  rpcs3Version = "0.0.31-16271-4ecf8ecd0";
+  rpcs3Revision = "4ecf8ecd06c15f0557e1d9243f31e4c2d7baebe2";
+  rpcs3Hash = "sha256-y7XLYo1qYYiNE4TXVxfUTCmyGkthpj3IU1gdKTgb8KY=";
 
   inherit (qt6Packages) qtbase qtmultimedia wrapQtAppsHook qtwayland;
-in
-stdenv.mkDerivation {
+in stdenv.mkDerivation {
   pname = "rpcs3";
   version = rpcs3Version;
 
@@ -84,17 +57,39 @@ stdenv.mkDerivation {
   nativeBuildInputs = [ cmake pkg-config git wrapQtAppsHook ];
 
   buildInputs = [
-    qtbase qtmultimedia openal glew vulkan-headers vulkan-loader libpng ffmpeg
-    libevdev zlib libusb1 curl wolfssl python3 pugixml SDL2 flatbuffers llvm_16 libSM
-  ] ++ cubeb.passthru.backendLibs
-    ++ lib.optional faudioSupport faudio
+    qtbase
+    qtmultimedia
+    openal
+    glew
+    vulkan-headers
+    vulkan-loader
+    libpng
+    ffmpeg
+    libevdev
+    zlib
+    libusb1
+    curl
+    wolfssl
+    python3
+    pugixml
+    SDL2
+    flatbuffers
+    llvm_16
+    libSM
+  ] ++ cubeb.passthru.backendLibs ++ lib.optional faudioSupport faudio
     ++ lib.optionals waylandSupport [ wayland qtwayland ];
 
   postInstall = ''
     # Taken from https://wiki.rpcs3.net/index.php?title=Help:Controller_Configuration
-    install -D ${./99-ds3-controllers.rules} $out/etc/udev/rules.d/99-ds3-controllers.rules
-    install -D ${./99-ds4-controllers.rules} $out/etc/udev/rules.d/99-ds4-controllers.rules
-    install -D ${./99-dualsense-controllers.rules} $out/etc/udev/rules.d/99-dualsense-controllers.rules
+    install -D ${
+      ./99-ds3-controllers.rules
+    } $out/etc/udev/rules.d/99-ds3-controllers.rules
+    install -D ${
+      ./99-ds4-controllers.rules
+    } $out/etc/udev/rules.d/99-ds4-controllers.rules
+    install -D ${
+      ./99-dualsense-controllers.rules
+    } $out/etc/udev/rules.d/99-dualsense-controllers.rules
   '';
 
   meta = with lib; {
